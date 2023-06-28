@@ -1,15 +1,14 @@
-"use strict";
-
 const { MoleculerClientError } = require('moleculer').Errors;
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 const DbConnection = require('./dbservice');
+// const DbService = require('moleculer-db');
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
     username: String,
     password: String,
-    email: Boolean
+    email: String
 })
 
 module.exports = {
@@ -29,10 +28,10 @@ module.exports = {
             params: {
                 user: { type: 'object' }
             },
-            handler: async (ctx) => {
+            async handler(ctx) {
                 const entity = ctx.params.user;
                 try {
-                    await validateEntity(entity);
+                    await this.validateEntity(entity);
                     if (entity.username) {
                         const foundUser = await this.adapter.findOne({ username: entity.username });
                         if (foundUser) {
@@ -69,7 +68,7 @@ module.exports = {
                     }
                 }
             },
-            handler: async (ctx) => {
+            async handler(ctx) {
                 const { email, password } = ctx.params.user;
                 try {
                     const user = await this.adapter.findOne({ email });
@@ -87,7 +86,7 @@ module.exports = {
                         throw err;
                     }
                 }
-                throw new MoleculerClientError('Login failed!', 500, '', [{ field: 'general', message: 'login failed' }]);
+                // throw new MoleculerClientError('Login failed!', 500, '', [{ field: 'general', message: 'login failed' }]);
             }
         },
         resolveToken: {
@@ -98,7 +97,7 @@ module.exports = {
             params: {
                 token: 'string'
             },
-            handler: async (ctx) => {
+            async handler(ctx) {
                 try {
                     const decoded = await new Promise((resolve, reject) => {
                         jsonwebtoken.verify(ctx.params.token, this.settings.JWT_SECRET, (err, decoded) => {

@@ -51,7 +51,7 @@ brokerNode1.createService({
                     'PUT /todos/:id': 'todos.complete',
                     'DELETE /todos/:id': 'todos.delete'
                 },
-                // authorization: true
+                authorization: true
             },
         ],
     },
